@@ -260,6 +260,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = nodavex;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Use Face ID to securely log in to your account.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "nodavex uses your local network to run ping requests against devices you choose.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -301,6 +302,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = nodavex;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Use Face ID to securely log in to your account.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "nodavex uses your local network to run ping requests against devices you choose.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
