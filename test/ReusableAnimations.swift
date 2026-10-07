@@ -3,7 +3,7 @@ import SwiftUI
 /// Horizontal XMB-inspired ribbons that can be placed in any SwiftUI view.
 struct XMBWaveAnimation: View {
     var primaryColor: Color = .white
-    var accentColor: Color = Color("LoginEntryBox")
+    var accentColor: Color = Color(red: 0.75, green: 0.75, blue: 0.75)
     var speed: Double = 1
     var framesPerSecond: Double = 30
 
@@ -71,7 +71,7 @@ struct XMBWaveAnimation: View {
 /// Concentric ribbons whose edges ripple around a circle.
 struct CircularRippleAnimation: View {
     var primaryColor: Color = .white
-    var accentColor: Color = Color("LoginEntryBox")
+    var accentColor: Color = Color(red: 0.75, green: 0.75, blue: 0.75)
     var speed: Double = 1.6
     var framesPerSecond: Double = 30
     var thicknessScale: CGFloat = 1

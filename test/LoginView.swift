@@ -63,8 +63,9 @@ struct LoginView: View {
     }
 
     var body: some View {
+        GeometryReader { geometry in
         ZStack {
-            Color("MainColor")
+            Color.black
                 .ignoresSafeArea()
 
             VStack(spacing: 14) {
@@ -91,8 +92,11 @@ struct LoginView: View {
                     )
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity, minHeight: 48)
-                        .background(Color("LoginEntryBox").opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(alignment: .bottom) {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.25))
+                                .frame(height: 1)
+                        }
                         .textFieldStyle(.plain)
                         .foregroundStyle(.white)
                         .tint(.white)
@@ -104,13 +108,18 @@ struct LoginView: View {
                     )
                         .padding(.horizontal, 12)
                         .frame(maxWidth: .infinity, minHeight: 48)
-                        .background(Color("LoginEntryBox").opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(alignment: .bottom) {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.25))
+                                .frame(height: 1)
+                        }
                         .textFieldStyle(.plain)
                         .foregroundStyle(.white)
                         .tint(.white)
                 }
+                .frame(maxWidth: 280)
                 .padding(.horizontal, 12)
+                .padding(.bottom, 34)
 
                 HStack(spacing: 12) {
                     Button {
@@ -119,39 +128,53 @@ struct LoginView: View {
                     } label: {
                         Text("Login")
                             .fontWeight(.semibold)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color(white: 0.6))
                             .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(Color("ButtonColor"))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .background {
+                                Capsule()
+                                    .fill(Color(white: 0.75).opacity(0.075))
+                            }
+                            .overlay {
+                                Capsule()
+                                    .strokeBorder(Color(white: 0.75).opacity(0.35), lineWidth: 1)
+                            }
+                            .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
 
                     Button(action: authenticateWithFaceID) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color("ButtonColor"))
+                            Circle()
+                                .fill(Color(white: 0.75).opacity(0.075))
+                                .overlay {
+                                    Circle()
+                                        .strokeBorder(Color(white: 0.75).opacity(0.35), lineWidth: 1)
+                                }
 
                             if isAuthenticating {
                                 ProgressView()
-                                    .tint(.white)
+                                    .tint(Color(white: 0.6))
                             } else {
                                 Image(systemName: isFaceIDAuthenticated ? "checkmark" : "faceid")
                                     .font(.system(size: 24, weight: .medium))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color(white: 0.6))
                             }
                         }
                         .frame(width: 48, height: 48)
+                        .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
                     .disabled(isAuthenticating)
                     .accessibilityLabel("Login with Face ID")
                 }
+                .frame(maxWidth: 280)
                 .padding(.horizontal, 12)
             }
             .frame(maxWidth: 360)
             .padding(.horizontal, 24)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .offset(y: -24)
+            .offset(x: (geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading) / 2, y: -24)
+        }
         }
         .alert(
             "Face ID",
