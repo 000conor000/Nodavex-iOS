@@ -78,7 +78,14 @@ struct LoginView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
 
-                    XMBWaveAnimation()
+                    // Original animation retained for reverting this SVG test:
+                    // XMBWaveAnimation()
+                    AnimatedRibbonLogo()
+                        .frame(width: 200, height: 200)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                        .zIndex(-1)
+
                 }
                     .frame(maxWidth: .infinity)
                     .frame(height: 120)

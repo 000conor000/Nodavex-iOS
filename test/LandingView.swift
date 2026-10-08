@@ -103,7 +103,8 @@ struct LandingView: View {
                     NodavexPageHeader(
                         pageTitle: page == .settings ? settingsSubtitle : page.rawValue,
                         titleOffset: (geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading) / 2,
-                        dividerTrailingExtension: max(0, geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading)
+                        dividerTrailingExtension: max(0, geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading),
+                        fullWidthRibbonWidth: geometry.size.width + geometry.safeAreaInsets.leading + geometry.safeAreaInsets.trailing
                     )
                 }
 
@@ -449,6 +450,7 @@ struct NodavexPageHeader: View {
     let pageTitle: String
     let titleOffset: CGFloat
     var dividerTrailingExtension: CGFloat = 0
+    var fullWidthRibbonWidth: CGFloat? = nil
     var actions: AnyView? = nil
     var backAction: (() -> Void)? = nil
 
@@ -473,13 +475,26 @@ struct NodavexPageHeader: View {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
 
-                XMBWaveAnimation()
-                    .frame(width: 280, height: 120)
-                    .scaleEffect(0.7)
-                    .frame(width: 196, height: 84)
+                // Original animation retained for reverting this SVG test:
+                // XMBWaveAnimation()
+                //     .frame(width: 280, height: 120)
+                //     .scaleEffect(0.7)
+                //     .frame(width: 196, height: 84)
+
             }
             .frame(maxWidth: .infinity)
             .frame(height: 72)
+            .background {
+                GeometryReader { header in
+                    let width = fullWidthRibbonWidth ?? (header.size.width + 48 + abs(titleOffset) * 2)
+                    AnimatedRibbonLogo(resourceName: "nodavex-horizontal-ribbons-animated")
+                        .frame(width: width, height: 100)
+                        .position(x: header.size.width / 2,
+                                  y: header.size.height / 2)
+                }
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            }
             .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
