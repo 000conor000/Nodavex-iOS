@@ -1,22 +1,5 @@
 import SwiftUI
 
-struct ServerProfile: Identifiable, Codable, Hashable {
-    var id = UUID()
-    var enabled: Bool? = true
-    var serverVersion: String? = nil
-    var title = ""
-    var scheme = "https"
-    var hostname = ""
-    var port = "443"
-    var trustUnverifiedCertificate = false
-    var network = true
-    var cpuMemory = true
-    var disk = true
-    var notifications = true
-
-    var endpoint: String { "\(scheme)://\(hostname):\(port)" }
-}
-
 struct ServerSettingsView: View {
     @Binding var subtitle: String
     let titleOffset: CGFloat
@@ -54,7 +37,7 @@ struct ServerSettingsView: View {
                 dividerTrailingExtension: dividerTrailingExtension,
                 actions: showingServers ? AnyView(
                     Button { editor = ServerProfile() } label: {
-                        Label("Add server", systemImage: "plus")
+                        Label("Add agent", systemImage: "plus")
                     }
                     .labelStyle(.iconOnly)
                     .font(.system(size: 14))
@@ -79,7 +62,7 @@ struct ServerSettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Servers")
                                 .foregroundStyle(Color(white: 0.8))
-                            Text("Add servers to your nodavex network")
+                            Text("Connect Nodavex agents that expose metrics over HTTP/HTTPS")
                                 .font(.caption)
                                 .foregroundStyle(Color(white: 0.45))
                         }
@@ -220,13 +203,13 @@ private struct ServerEditor: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text(isNew ? "Add server" : "Edit server")
+            Text(isNew ? "Add agent" : "Edit agent")
                 .font(.title3.weight(.medium))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(24)
 
             Form {
-                Section("Service") {
+                Section("Nodavex agent") {
                     TextField("Title", text: $profile.title)
                     Toggle("Enabled", isOn: Binding(
                         get: { profile.enabled ?? true },
@@ -252,6 +235,31 @@ private struct ServerEditor: View {
                     Toggle("CPU / Memory", isOn: $profile.cpuMemory)
                     Toggle("Disk", isOn: $profile.disk)
                     Toggle("Notifications", isOn: $profile.notifications)
+                    Toggle("Kubernetes", isOn: Binding(
+                        get: { profile.kubernetes ?? false },
+                        set: { profile.kubernetes = $0 }
+                    ))
+                }
+                if profile.kubernetes == true {
+                    Section {
+                        ForEach(KubernetesWidgetKind.allCases) { kind in
+                            Toggle(isOn: Binding(
+                                get: { profile.showsKubernetesWidget(kind) },
+                                set: { enabled in
+                                    var widgets = profile.kubernetesWidgets ?? KubernetesWidgetKind.allCases.map(\.rawValue)
+                                    widgets.removeAll { $0 == kind.rawValue }
+                                    if enabled { widgets.append(kind.rawValue) }
+                                    profile.kubernetesWidgets = widgets
+                                }
+                            )) {
+                                Label(kind.title, systemImage: kind.symbol)
+                            }
+                        }
+                    } header: {
+                        Text("Kubernetes widgets")
+                    } footer: {
+                        Text("The Nodavex agent gathers Kubernetes metrics and exposes them through its API. Widgets currently show labelled demo data while the API connection is being developed.")
+                    }
                 }
             }
             .scrollContentBackground(.hidden)
@@ -316,13 +324,13 @@ private struct AboutAppView: View {
                     Text("Features")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Color(white: 0.8))
-                    Text("Network traffic · CPU & memory · Disk usage · Notifications · Server profiles")
+                    Text("Network traffic · CPU & memory · Disk usage · Notifications · Nodavex agents · Server actions · Kubernetes")
                         .font(.subheadline)
                         .foregroundStyle(Color(white: 0.6))
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                Text("Dashboard metrics currently use demonstration data. Server profiles and notification preferences are saved locally on this device; live monitoring is still being developed.")
+                Text("Dashboard metrics currently use demonstration data. Server profiles, actions, and notification preferences are saved locally on this device. Live monitoring and HTTP/HTTPS command execution are still being developed.")
                     .font(.caption)
                     .foregroundStyle(Color(white: 0.45))
                     .fixedSize(horizontal: false, vertical: true)

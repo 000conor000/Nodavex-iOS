@@ -1,8 +1,15 @@
 import SwiftUI
 import UIKit
+import OSLog
 
 @main struct NodavexApp: App {
     init() {
+        do {
+            try ServerProfile.installKubernetesSample()
+        } catch {
+            Logger(subsystem: "com.conorsokellpersonalteam.nodavex", category: "SampleAgent")
+                .error("Could not add the Kubernetes sample agent: \(error.localizedDescription, privacy: .public)")
+        }
         UITabBar.appearance().unselectedItemTintColor = UIColor(white: 0.45, alpha: 1)
         UITabBar.appearance().tintColor = .white
     }
@@ -17,6 +24,7 @@ import UIKit
 
 private struct AppRootView: View {
     @State private var isAuthenticated = false
+    private var notificationBadge = NotificationBadgeState()
 
     var body: some View {
         ZStack {
@@ -33,5 +41,7 @@ private struct AppRootView: View {
                 .zIndex(1)
             }
         }
+        .modifier(NotificationIconBadgeModifier(count: notificationBadge.unreadCount,
+                                              requestPermission: isAuthenticated))
     }
 }

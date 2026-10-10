@@ -6,11 +6,14 @@ struct LandingView: View {
         case home = "Home"
         case notifications = "Notifications"
         case actions = "Actions"
+        case operations = "Operations"
         case settings = "Settings"
     }
 
     private enum Widget: String, CaseIterable, Identifiable {
         case disk, system, network, notifications
+        case k8sNodes, k8sPods, k8sWorkloads, k8sResources, k8sRestarts, k8sStorage, k8sJobs, k8sEvents
+        var kubernetesKind: KubernetesWidgetKind? { KubernetesWidgetKind(rawValue: rawValue) }
         var id: String { rawValue }
         var dragIdentifier: String { "nodavex.widget." + rawValue }
     }
@@ -22,6 +25,7 @@ struct LandingView: View {
     @State private var homeIsScrolling = false
     @State private var homeMenuFrame: CGRect = .zero
     @State private var homeScrollMetrics: [CGFloat] = [0, 0, 0]
+    private var notificationBadge = NotificationBadgeState()
 
     private var homeServers: [ServerProfile] {
         ((try? JSONDecoder().decode([ServerProfile].self, from: Data(savedProfiles.utf8))) ?? [])
@@ -30,11 +34,13 @@ struct LandingView: View {
 
     private func enabledWidgets(for server: ServerProfile) -> [Widget] {
         widgetOrder.filter { widget in
+            if let kind = widget.kubernetesKind { return server.showsKubernetesWidget(kind) }
             switch widget {
             case .disk: return server.disk
             case .system: return server.cpuMemory
             case .network: return server.network
             case .notifications: return server.notifications
+            default: return false
             }
         }
     }
@@ -73,6 +79,10 @@ struct LandingView: View {
             NetworkTrafficWidget(uploadRate: 2.4, downloadRate: 18.6)
         case .notifications:
             NotificationCountWidget(info: 2, low: 1, medium: 1, large: 1)
+        default:
+            if let kind = widget.kubernetesKind {
+                KubernetesMetricWidget(kind: kind, metrics: .demo)
+            }
         }
     }
 
@@ -84,8 +94,12 @@ struct LandingView: View {
             Tab("Notifications", systemImage: "bell", value: Page.notifications) {
                 page(.notifications)
             }
+            .badge(notificationBadge.unreadCount)
             Tab("Actions", systemImage: "bolt", value: Page.actions) {
                 page(.actions)
+            }
+            Tab("Operations", systemImage: "wrench.and.screwdriver", value: Page.operations) {
+                page(.operations)
             }
             Tab("Settings", systemImage: "gearshape", value: Page.settings) {
                 page(.settings)
@@ -212,15 +226,15 @@ struct LandingView: View {
                         titleOffset: (geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading) / 2
                     )
                 } else if page == .actions {
-                    VStack(spacing: 6) {
-                        NodavexPageHeader(
-                            pageTitle: "Actions",
-                            titleOffset: (geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading) / 2,
-                            dividerTrailingExtension: max(0, geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading)
-                        )
-                        Color.clear
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
+                    ServerActionsView(
+                        titleOffset: (geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading) / 2,
+                        dividerTrailingExtension: max(0, geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading)
+                    )
+                } else if page == .operations {
+                    OperationsView(
+                        titleOffset: (geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading) / 2,
+                        dividerTrailingExtension: max(0, geometry.safeAreaInsets.trailing - geometry.safeAreaInsets.leading)
+                    )
                 } else {
                     ServerSettingsView(
                         subtitle: $settingsSubtitle,
@@ -276,7 +290,7 @@ private extension EnvironmentValues {
     }
 }
 
-private struct MenuContourCard: ViewModifier {
+struct MenuContourCard: ViewModifier {
     @Environment(\.homeMenuExclusion) private var menu
     @State private var frame: CGRect = .zero
 
